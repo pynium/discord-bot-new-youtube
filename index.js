@@ -2,15 +2,25 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
 const { token } = require('./config.json');
+const RSSParser = require('rss-parser');
 
+const parser = new RSSParser();
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const dbPath = path.join(__dirname, 'data.json');
 
 client.commands = new Collection();
+client.cooldowns = new Collection();
+
 const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
 
 for (const folder of commandFolders) {
 	const commandsPath = path.join(foldersPath, folder);
+
+    if (!fs.lstatSync(commandsPath).isDirectory()) {
+        continue;
+    }
+
 	const commandFiles = fs.readdirSync(commandsPath).filter((file) => file.endsWith('.js'));
 	for (const file of commandFiles) {
 		const filePath = path.join(commandsPath, file);
@@ -35,5 +45,43 @@ for (const file of eventFiles) {
 		client.on(event.name, (...args) => event.execute(...args));
 	}
 }
+
+async function checkYouTube() {
+	if (!fs.existsSync(dbPath)) return;
+	const db = JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
+	let dataChanged = false;
+
+	for (const guildId in db) {
+		const channelsToWatch = db[guildId];
+		for (const entry of channelsToWatch) {
+			try {
+				const feed = await parser.parseURL(`https://www.youtube.com/feeds/videos.xml?channel_id=${entry.ytId}`);
+				if (!feed || !feed.items || feed.items.length === 0) continue;
+				const latestVideo = feed.items[0];
+				if (entry.lastVideoId !== latestVideo.id) {
+					if (entry.lastVideoId !== null) {
+						const discordChannel = await client.channels.fetch(entry.discordChannelId).catch(() => null);
+						if (discordChannel) {
+							await discordChannel.send(`🚨 **New Upload!** ${feed.title}\n${latestVideo.link}\n@everyone`);
+						}
+					}
+					entry.lastvideoId = latestVideoId;
+					dataChanged = true;
+				}
+			} catch (error) {
+				console.error(`Error checking ${entry.ytId}:`, error.message);
+			}
+		}
+	}
+	if (dataChanged) {
+		fs.writeFileSync(dbPath, JSON.stringify(db, null, 2));
+	}
+}
+
+client.once('ready', () => {
+	console.log('Youtube Watcher Started...');
+	checkYouTube();
+	setInterval(checkYouTube, 300_000);
+});
 
 client.login(token);

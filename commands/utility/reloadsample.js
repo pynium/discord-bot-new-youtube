@@ -4,7 +4,7 @@ const path = require('node:path');
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('reload')
+        .setName('reloadsample')
         .setDescription('Reloads a command.')
         .addStringOption(option =>
             option.setName('command')
