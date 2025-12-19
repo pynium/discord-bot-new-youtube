@@ -1,13 +1,12 @@
-const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
 const fs = require('node:fs');
 const path = require('node:path');
 const dbPath = path.join(__dirname, '..', '..', 'data.json');
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('yt-remove')
+        .setName('yt-pop')
         .setDescription('Remove a YouTube channel from the watch list.')
-        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
         .addIntegerOption(option =>
             option.setName('index')
                 .setDescription('The number of the channel to remove (Look at /yt-list)')

@@ -5,7 +5,7 @@ const { token } = require('./config.json');
 const RSSParser = require('rss-parser');
 
 const parser = new RSSParser();
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
 const dbPath = path.join(__dirname, 'data.json');
 
 client.commands = new Collection();
@@ -65,7 +65,7 @@ async function checkYouTube() {
 							await discordChannel.send(`🚨 **New Upload!** ${feed.title}\n${latestVideo.link}\n@everyone`);
 						}
 					}
-					entry.lastvideoId = latestVideoId;
+					entry.lastVideoId = latestVideo.id;
 					dataChanged = true;
 				}
 			} catch (error) {

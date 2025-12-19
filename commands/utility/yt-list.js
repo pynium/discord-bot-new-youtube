@@ -14,14 +14,14 @@ module.exports = {
         try {
             db = JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
         } catch (error) {
-            return interaction.reply({ content: '❌ Database error.', ephemeral: true });
+            return interaction.reply({ content: '❌ Database error.' });
         }
 
         const guildId = interaction.guild.id;
         const serverList = db[guildId]; 
 
         if (!serverList || serverList.length === 0) {
-            return interaction.reply({ content: '📭 No YouTube channels are being watched.', ephemeral: true });
+            return interaction.reply({ content: '📭 No YouTube channels are being watched.' });
         }
 
         const serverIcon = interaction.guild.iconURL({ dynamic: true });
